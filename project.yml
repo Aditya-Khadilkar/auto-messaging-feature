@@ -1,0 +1,10 @@
+packages:
+    - name: auto-message-job
+      functions:
+        - name: auto-message
+          limits:
+            timeout: 18000
+            memory: 512
+            logs: 100
+          runtime: python:default
+          web: false
