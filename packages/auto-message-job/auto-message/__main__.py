@@ -24,7 +24,7 @@ def send_notification(message, token):
     response = messaging.send(payload)
 
 def read_chats(user_email, user_name, chapter_status):
-    chat_ref = db.collection("test").document(user_email).collection(user_name).document(chapter_status)
+    chat_ref = db.collection("users").document(user_email).collection("messages").document(chapter_status)
     chats = chat_ref.get().to_dict()
     return chats, chat_ref
 
@@ -71,7 +71,7 @@ def update_firestore(chats, chat_ref, question, greeting):
         return "There was an issue in getting response from model..."
     
 def update_user(user_email, chats, fcm_token, latest_timestamp):
-    user_ref = db.collection("test").document(user_email)
+    user_ref = db.collection("users").document(user_email)
     if chats == None:
         total_msgs = 0
     else:
@@ -109,7 +109,7 @@ def validate_user(doc):
     
     aya_msg_time = datetime.datetime.strptime(last_msg_time, '%Y-%m-%d %H:%M:%S IST%z')
     # print(type(aya_msg_time))
-    new_message_time = aya_msg_time + timedelta(minutes=6)
+    new_message_time = aya_msg_time + timedelta(hours=6)
     # new_message_time = new_message_time.strftime('%Y-%m-%d %H:%M:%S IST%z')
     
     new_time = time_correction(new_message_time)
@@ -156,7 +156,7 @@ def validate_user(doc):
     return fcm, chapter, message_trigger, greeting, email, name, chats, chat_ref
 
 def main():
-    docs = db.collection("test").stream()
+    docs = db.collection("users").stream()
     operation_failed_users = []
     for doc in docs:
         try:
