@@ -4,7 +4,6 @@ packages:
         - name: auto-message
           limits:
             timeout: 18000
-            memory: 512
-            logs: 100
+            memory: 1024
           runtime: python:default
           web: false
