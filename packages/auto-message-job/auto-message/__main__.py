@@ -48,7 +48,7 @@ def time_correction(new_msg_time):
     else:
         return new_msg_time
 
-def update_firestore(chats, chat_ref, question, greeting):
+def update_firestore(chats, chat_ref, greeting):
     if chats == None:
         chat_number = 0
     else:
@@ -58,7 +58,7 @@ def update_firestore(chats, chat_ref, question, greeting):
     # if question == None:
     latest_chat = {}
     for i in range(len(greeting)):
-        latest_chat[str(chat_number + i)] = {"user": question, "assistant": greeting[i], "timestamp": current_time_ist.strftime('%Y-%m-%d %H:%M:%S %Z%z')}
+        latest_chat[str(chat_number + i)] = {"assistant": greeting[i], "timestamp": current_time_ist.strftime('%Y-%m-%d %H:%M:%S %Z%z')}
     # latest_chat = {str(chat_number): {"user": question, "assistant": resp, "timestamp": current_time_ist.strftime('%Y-%m-%d %H:%M:%S %Z%z')}}
     # else:
     #     latest_chat = {str(chat_number): {"user": question, "assistant": resp, "timestamp": current_time_ist.strftime('%Y-%m-%d %H:%M:%S %Z%z')}}
@@ -169,7 +169,7 @@ def main():
                         # chats, chat_ref = read_chats(email, name, chapter)
                         print("Notification sent......")
                 if greeting != None:
-                    latest_chats, current_time_ist = update_firestore(chats, chat_ref, None, greeting)
+                    latest_chats, current_time_ist = update_firestore(chats, chat_ref, greeting)
                     update_user(email, chats, user_fcm, current_time_ist)
                 else:
                     pass
@@ -186,8 +186,6 @@ def main():
             print("#############################")
     print(operation_failed_users)
     return {"failed users": operation_failed_users}
-
-main()
 
 ## validation - take decision to send message
 ## what message to send - decide_message()
