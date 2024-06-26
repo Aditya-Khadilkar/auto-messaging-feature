@@ -84,7 +84,7 @@ def update_user(user_email, chats, fcm_token, latest_timestamp):
 
     # latest_conversation = chats[str(total_msgs - 1)]
     # latest_timestamp = latest_conversation["timestamp"]
-    user_ref.update({"total_msgs": total_msgs, "fcm_token":fcm_token, "last_msg_time": time})
+    user_ref.update({"total_msgs": total_msgs, "fcm_token":fcm_token, "lst_bot_msg": time})
     print(user_email," user updated")
 
 def validate_user(doc):
