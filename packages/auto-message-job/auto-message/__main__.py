@@ -40,11 +40,11 @@ def time_correction(new_msg_time):
 
     if start_time_1 <= time_object <= end_time_1:
         new_date = new_msg_time + datetime.timedelta(days=1)
-        new_time = new_date.replace(hour=7, minute=1, second=0, microsecond=0)
-        return new_time
+        next_msg_time = new_date.replace(hour=7, minute=1, second=0, microsecond=0)
+        return next_msg_time
     elif start_time_2 <= time_object < end_time_2:
-        new_time = new_msg_time.replace(hour=7, minute=1, second=0, microsecond=0)
-        return new_time
+        next_msg_time = new_msg_time.replace(hour=7, minute=1, second=0, microsecond=0)
+        return next_msg_time
     else:
         return new_msg_time
 
@@ -95,7 +95,7 @@ def validate_user(doc):
     user_info_dict = doc.to_dict()
     name = user_info_dict["user_name"]
     chapter = user_info_dict["chapter_status"]
-    last_msg_time = user_info_dict['last_msg_time']
+    lst_bot_msg = user_info_dict['lst_bot_msg']
     fcm = user_info_dict["fcm_token"]
     email = user_info_dict["user_email"]
 
@@ -105,20 +105,20 @@ def validate_user(doc):
         message_trigger = False
         return fcm, chapter, message_trigger, greeting, email, name, chats, chat_ref
 
-    print("last message time of user " + email + " is " + last_msg_time)
+    print("last message time of Aya for user " + email + " is " + lst_bot_msg)
     
-    aya_msg_time = datetime.datetime.strptime(last_msg_time, '%Y-%m-%d %H:%M:%S IST%z')
+    aya_msg_time = datetime.datetime.strptime(lst_bot_msg, '%Y-%m-%d %H:%M:%S IST%z')
     # print(type(aya_msg_time))
-    new_message_time = aya_msg_time + timedelta(hours=6)
-    # new_message_time = new_message_time.strftime('%Y-%m-%d %H:%M:%S IST%z')
+    aya_next_msg_time = aya_msg_time + timedelta(hours=6)
+    # aya_next_msg_time = aya_next_msg_time.strftime('%Y-%m-%d %H:%M:%S IST%z')
     
-    new_time = time_correction(new_message_time)
-    # new_time = new_time.strftime('%Y-%m-%d %H:%M:%S %Z%z')
-    # new_time = datetime.datetime.strptime(new_time, '%Y-%m-%d %H:%M:%S IST%z')
-    # print(new_time)
-    # print(type(new_time))
+    next_msg_time = time_correction(aya_next_msg_time)
+    # next_msg_time = next_msg_time.strftime('%Y-%m-%d %H:%M:%S %Z%z')
+    # next_msg_time = datetime.datetime.strptime(next_msg_time, '%Y-%m-%d %H:%M:%S IST%z')
+    # print(next_msg_time)
+    # print(type(next_msg_time))
     
-    print("Auto message should be sent to user " + email + " @ time " + str(new_time))
+    print("Aya will again talk with user " + email + " @ time " + str(next_msg_time))
     
     time = datetime.datetime.now(ist).strftime('%Y-%m-%d %H:%M:%S %Z%z')
     time = datetime.datetime.strptime(time, '%Y-%m-%d %H:%M:%S IST%z')
@@ -138,7 +138,7 @@ def validate_user(doc):
     evening_start = datetime.time(16, 0, 0)
     evening_end = datetime.time(23, 59, 59)
     
-    # new_time_hour = new_time.hour
+    # next_msg_time_hour = next_msg_time.hour
     if morning_start <= time.time() < morning_end:
         greeting = morning_greeting  ## This greeting is for morning
 
@@ -149,8 +149,8 @@ def validate_user(doc):
         greeting = evening_greeting
 
     # print(type(time))
-    # print(type(new_time))
-    if new_time <= time:
+    # print(type(next_msg_time))
+    if next_msg_time <= time:
         message_trigger = True
     
     return fcm, chapter, message_trigger, greeting, email, name, chats, chat_ref
