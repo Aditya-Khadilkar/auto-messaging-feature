@@ -5,12 +5,13 @@ import datetime
 from datetime import timedelta
 import pytz
 import traceback
-
+from create_msg import create_messages
 ist = pytz.timezone("Asia/Kolkata")
 
 cred = credentials.Certificate('serviceAccountKey.json')
 firebase_admin.initialize_app(cred)
 db = firestore.client()
+
 
 def send_notification(message, token):
     payload = messaging.Message(
@@ -87,6 +88,8 @@ def update_user(user_email, chats, fcm_token, latest_timestamp):
     user_ref.update({"total_msgs": total_msgs, "fcm_token":fcm_token, "lst_bot_msg": time})
     print(user_email," user updated")
 
+
+
 def validate_user(doc):
     message_trigger = False
     greeting = ""
@@ -98,6 +101,8 @@ def validate_user(doc):
     lst_bot_msg = user_info_dict['lst_bot_msg']
     fcm = user_info_dict["fcm_token"]
     email = user_info_dict["user_email"]
+    time_zone = user_info_dict["user_timezone"]
+    nickname = user_info_dict["nickname"]
 
     chats, chat_ref = read_chats(email, name, chapter)
 
@@ -109,7 +114,7 @@ def validate_user(doc):
     
     aya_msg_time = datetime.datetime.strptime(lst_bot_msg, '%Y-%m-%d %H:%M:%S IST%z')
     # print(type(aya_msg_time))
-    aya_next_msg_time = aya_msg_time + timedelta(hours=6)
+    aya_next_msg_time = aya_msg_time + timedelta(hours=2)
     # aya_next_msg_time = aya_next_msg_time.strftime('%Y-%m-%d %H:%M:%S IST%z')
     
     next_msg_time = time_correction(aya_next_msg_time)
@@ -122,31 +127,35 @@ def validate_user(doc):
     
     time = datetime.datetime.now(ist).strftime('%Y-%m-%d %H:%M:%S %Z%z')
     time = datetime.datetime.strptime(time, '%Y-%m-%d %H:%M:%S IST%z')
+
+
+    greeting = create_messages(time_zone, name, email, chapter)
+
     # time = time.time()
     # print("time is ", time)
     # print(type(time))
 
     # greetings_based_on_time = ["Good morning 😊", "Good Afternoon 😊", "Good Evening 😊"]
-    morning_greeting = ["Dude! Did you join a secret cult or something? 🤔", "Haven’t heard from you in ages!", "Let's fix that ASAP!"]
-    afternoon_greeting = ["Oi, shithead! 😂", "Long time no see!", "Got any insane adventures to share?", "We need a hangout session pronto!"]
-    evening_greeting = ["Yo, you ghost! 👻", "Where the f*** have you been?", "Got some wild shenanigans to share or what?", "We gotta catch up, buddy!"]
+    # morning_greeting = ["Dude! Did you join a secret cult or something? 🤔", "Haven’t heard from you in ages!", "Let's fix that ASAP!"]
+    # afternoon_greeting = ["Oi, shithead! 😂", "Long time no see!", "Got any insane adventures to share?", "We need a hangout session pronto!"]
+    # evening_greeting = ["Yo, you ghost! 👻", "Where the f*** have you been?", "Got some wild shenanigans to share or what?", "We gotta catch up, buddy!"]
 
-    morning_start = datetime.time(6, 0, 0)
-    morning_end = datetime.time(11, 59, 59)
-    afternoon_start = datetime.time(12, 0, 0)
-    afternoon_end = datetime.time(15, 59, 59)
-    evening_start = datetime.time(16, 0, 0)
-    evening_end = datetime.time(23, 59, 59)
+    # morning_start = datetime.time(6, 0, 0)
+    # morning_end = datetime.time(11, 59, 59)
+    # afternoon_start = datetime.time(12, 0, 0)
+    # afternoon_end = datetime.time(15, 59, 59)
+    # evening_start = datetime.time(16, 0, 0)
+    # evening_end = datetime.time(23, 59, 59)
     
-    # next_msg_time_hour = next_msg_time.hour
-    if morning_start <= time.time() < morning_end:
-        greeting = morning_greeting  ## This greeting is for morning
+    # # next_msg_time_hour = next_msg_time.hour
+    # if morning_start <= time.time() < morning_end:
+    #     greeting = morning_greeting  ## This greeting is for morning
 
-    elif afternoon_start <= time.time() < afternoon_end:
-        greeting = afternoon_greeting  # This greeting is for the Afternoon
+    # elif afternoon_start <= time.time() < afternoon_end:
+    #     greeting = afternoon_greeting  # This greeting is for the Afternoon
 
-    elif evening_start <= time.time() < evening_end:
-        greeting = evening_greeting
+    # elif evening_start <= time.time() < evening_end:
+    #     greeting = evening_greeting
 
     # print(type(time))
     # print(type(next_msg_time))
@@ -154,6 +163,43 @@ def validate_user(doc):
         message_trigger = True
     
     return fcm, chapter, message_trigger, greeting, email, name, chats, chat_ref
+
+
+# def validate_user(doc):
+#     message_trigger = False
+#     greeting = ""
+
+
+#     user_info_dict = doc.to_dict()
+#     name = user_info_dict["user_name"]
+#     chapter = user_info_dict["chapter_status"]
+#     lst_bot_msg = user_info_dict['lst_bot_msg']
+#     fcm = user_info_dict["fcm_token"]
+#     email = user_info_dict["user_email"]
+#     total_msgs = user_info_dict["total_msgs"]
+
+#     if total_msgs == 0:
+#         message_trigger = True
+        
+    
+#     aya_msg_time = datetime.datetime.strptime(lst_bot_msg, '%Y-%m-%d %H:%M:%S IST%z')
+#     # print(type(aya_msg_time))
+#     aya_next_msg_time = aya_msg_time + timedelta(hours=6)
+#     # aya_next_msg_time = aya_next_msg_time.strftime('%Y-%m-%d %H:%M:%S IST%z')
+    
+#     next_msg_time = time_correction(aya_next_msg_time)
+
+    
+#     time = datetime.datetime.now(ist).strftime('%Y-%m-%d %H:%M:%S %Z%z')
+#     time = datetime.datetime.strptime(time, '%Y-%m-%d %H:%M:%S IST%z')
+
+#     if next_msg_time <= time:
+#         message_trigger = True
+    
+#     return message_trigger
+
+
+
 
 def main():
     docs = db.collection("users").stream()
@@ -186,6 +232,40 @@ def main():
             print("#############################")
     print(operation_failed_users)
     return {"failed users": operation_failed_users}
+
+
+# def main():
+#     docs = db.collection("users").stream()
+#     operation_failed_users = []
+#     for doc in docs:
+#         try:
+#             user_fcm, chapter, message_trigger, greeting, email, name, chats, chat_ref = validate_user(doc)
+#             if message_trigger:
+#                 # list_of_messages = ["You there?", "Wake uppppp"]
+#                 # list_of_messages.insert(0, greet)
+#                 for greet in greeting:
+#                         send_notification(greet, user_fcm)
+#                         # chats, chat_ref = read_chats(email, name, chapter)
+#                         print("Notification sent......")
+#                 if greeting != None:
+#                     latest_chats, current_time_ist = update_firestore(chats, chat_ref, greeting)
+#                     update_user(email, chats, user_fcm, current_time_ist)
+#                 else:
+#                     pass
+            
+#         except Exception as e:
+            
+#             user_info_dict = doc.to_dict()
+#             name = user_info_dict["user_name"]
+#             email = user_info_dict["user_email"]
+#             operation_failed_users.append(email)
+#             print("#############################")
+#             print(f"An error occurred: {e}")
+#             print(traceback.print_exc())
+#             print("#############################")
+#     print(operation_failed_users)
+#     return {"failed users": operation_failed_users}
+
 
 ## validation - take decision to send message
 ## what message to send - decide_message()
