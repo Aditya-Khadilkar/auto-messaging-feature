@@ -109,6 +109,8 @@ def validate_user(doc):
     if chats == None:
         message_trigger = False
         return fcm, chapter, message_trigger, greeting, email, name, chats, chat_ref
+    
+
 
     print("last message time of Aya for user " + email + " is " + lst_bot_msg)
     
@@ -128,8 +130,13 @@ def validate_user(doc):
     time = datetime.datetime.now(ist).strftime('%Y-%m-%d %H:%M:%S %Z%z')
     time = datetime.datetime.strptime(time, '%Y-%m-%d %H:%M:%S IST%z')
 
+    if next_msg_time <= time:
+        message_trigger = True
 
-    greeting = create_messages(time_zone, name, email, chapter)
+    if message_trigger:
+        greeting = create_messages(time_zone, name, email, chapter)
+    else:
+        print("No message to send")
 
     # time = time.time()
     # print("time is ", time)
@@ -159,8 +166,7 @@ def validate_user(doc):
 
     # print(type(time))
     # print(type(next_msg_time))
-    if next_msg_time <= time:
-        message_trigger = True
+   
     
     return fcm, chapter, message_trigger, greeting, email, name, chats, chat_ref
 
